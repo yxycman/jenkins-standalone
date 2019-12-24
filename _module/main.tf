@@ -17,7 +17,7 @@ resource "aws_vpc" "jenkins" {
 }
 
 resource "aws_internet_gateway" "jenkins" {
-  vpc_id = "${aws_vpc.jenkins.id}"
+  vpc_id = aws_vpc.jenkins.id
 
   tags = {
     Name = "jenkins IGW"
@@ -25,11 +25,11 @@ resource "aws_internet_gateway" "jenkins" {
 }
 
 resource "aws_route_table" "jenkins" {
-  vpc_id = "${aws_vpc.jenkins.id}"
+  vpc_id = aws_vpc.jenkins.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.jenkins.id}"
+    gateway_id = aws_internet_gateway.jenkins.id
   }
 
   tags = {
@@ -38,8 +38,8 @@ resource "aws_route_table" "jenkins" {
 }
 
 resource "aws_main_route_table_association" "jenkins" {
-  vpc_id         = "${aws_vpc.jenkins.id}"
-  route_table_id = "${aws_route_table.jenkins.id}"
+  vpc_id         = aws_vpc.jenkins.id
+  route_table_id = aws_route_table.jenkins.id
 }
 
 resource "aws_subnet" "jenkins" {
@@ -107,7 +107,7 @@ resource "aws_s3_bucket" "jenkins" {
 
 resource "aws_s3_bucket_object" "jenkins_plugins" {
   key    = "_zipped_plugins.zip"
-  bucket = "${aws_s3_bucket.jenkins.id}"
+  bucket = aws_s3_bucket.jenkins.id
   source = "_module/_zipped_plugins.zip"
   acl    = "public-read"
 }

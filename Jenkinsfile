@@ -25,8 +25,6 @@ pipeline {
         //    return
         //}
 
-        //input message:"Deploy plan ${BUILD_NUMBER}.tfplan ?"
-
         stage ('Terrafrom apply') {
             steps {
                 sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
