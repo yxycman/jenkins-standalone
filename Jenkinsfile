@@ -1,38 +1,36 @@
+node {
+    checkout scm
+}
+
 pipeline {
-    agent none
+    agent any
     stages {
         stage ('Terrafrom init') {
-            sh "terraform init -input=false"
-        }
-
-        stage ('Terrafrom plan') {
-            exitCode = sh (
-                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode",
-                returnStatus: true
-            )
-            switch(exitCode) {
-                case 0:
-                    echo 'Plan OK with no changes'
-                    currentBuild.result = 'SUCCESS'
-                    break
-                case 1:
-                    echo 'Plan Failed'
-                    currentBuild.result = 'FAILURE'
-                    break
-                case 2:
-                    echo 'Plan OK with changes: proceeding'
-                    break
+            steps {
+                sh "terraform init -input=false"
             }
         }
 
-        if (currentBuild.result == 'SUCCESS') {
-            return
+        stage ('Terrafrom plan') {
+            steps {
+
+                sh "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode"
+                script {
+                    def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+                }
+            }
         }
 
-        input message:"Deploy plan ${BUILD_NUMBER}.tfplan ?"
+        //if (currentBuild.result == 'SUCCESS') {
+        //    return
+        //}
+
+        //input message:"Deploy plan ${BUILD_NUMBER}.tfplan ?"
 
         stage ('Terrafrom apply') {
-            sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+            steps {
+                sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+            }
         }
     }
 }
