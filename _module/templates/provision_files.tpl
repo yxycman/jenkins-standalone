@@ -47,8 +47,8 @@ write_files:
 
       def instance = Jenkins.getInstance()
 
-      if (!instance.getJob('terraform-plan')) {
-        job            = instance.getJob('terraform-plan-w')
+      if (!instance.getJob('terraform-deploy')) {
+        job            = instance.createProject(WorkflowJob, 'terraform-deploy')
         userConfig     = [new UserRemoteConfig("${stack_url}", null, null, null)]
         branchConfig   = [new BranchSpec("*/master")]
         scm            = new GitSCM(userConfig, branchConfig, false, [], null, null, null)
