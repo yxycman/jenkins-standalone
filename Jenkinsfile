@@ -4,30 +4,59 @@ node {
 
 pipeline {
     agent any
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        timeout(time: 5, unit: 'MINUTES')
+        ansiColor('xterm')
+    }
+
     stages {
         stage ('Terrafrom init') {
             steps {
-                sh "terraform init -input=false"
+                dir('terraform-provider-aws/examples/two-tier') {
+                    sh "terraform init -input=false"
+                }
             }
+
         }
 
         stage ('Terrafrom plan') {
             steps {
-
-                sh "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode"
-                script {
-                    def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+                dir('terraform-provider-aws/examples/two-tier') {
+                    //sh "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode"
+                    script {
+                        def exitCode = sh (
+                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode",
+                                returnStatus: true
+                            )
+                        switch(exitCode) {
+                                case 0:
+                                    echo 'Plan OK with no changes'
+                                    currentBuild.result = 'SUCCESS'
+                                    break
+                                case 1:
+                                    echo 'Plan Failed'
+                                    currentBuild.result = 'FAILURE'
+                                    break
+                                case 2:
+                                    echo 'Plan OK with changes: proceeding'
+                                    break
+                        }
+                        if (currentBuild.result == 'SUCCESS') {
+                            return
+                        }
+                        def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+                    }
                 }
             }
         }
 
-        //if (currentBuild.result == 'SUCCESS') {
-        //    return
-        //}
-
         stage ('Terrafrom apply') {
             steps {
-                sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+                dir('terraform-provider-aws/examples/two-tier') {
+                    sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+                }
             }
         }
     }

@@ -29,5 +29,5 @@ variable "admin_password" {
 variable "stack_url" {
   description = "The URL for TF stack code to deploy with Jenkins"
   type        = string
-  default     = "https://github.com/yxycman/jenkins-standalone.git"
+  default     = "https://github.com/terraform-providers/terraform-provider-aws.git"
 }

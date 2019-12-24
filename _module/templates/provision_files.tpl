@@ -30,7 +30,7 @@ write_files:
       def instance = Jenkins.getInstance()
 
       instance.getPluginManager().doCheckUpdatesServer()
-      plugins_to_install = [ 'workflow-aggregator', 'git' ]
+      plugins_to_install = [ 'workflow-aggregator', 'git', 'ansiColor' ]
       plugins_to_install.each { 
         instance.updateCenter.getPlugin(it).deploy().get(3, TimeUnit.MINUTES)
       }
