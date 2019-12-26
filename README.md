@@ -25,7 +25,7 @@ run from the root folder of this repo:
 These commands will create EC2 instance and all necessary, for our Demo, resources.
 If success, you will receive IP address as an output for `terraform apply` command.
 
- $ terraform apply
+>$ terraform apply
  ...
  Outputs:
  instance_ip = 13.48.23.141
