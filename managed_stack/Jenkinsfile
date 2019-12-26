@@ -25,7 +25,7 @@ pipeline {
                 dir('managed_stack/test-vpc') {
                     script {
                         def exitCode = sh (
-                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode -backend-config=\"bucket=${params.STATE_BUCKET}\" -backend-config=\"region=${params.STATE_BUCKET_REGION}\"",
+                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode",
                                 returnStatus: true
                             )
                         switch(exitCode) {
@@ -53,7 +53,7 @@ pipeline {
         stage ('Terrafrom apply') {
             steps {
                 dir('managed_stack/test-vpc') {
-                    sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan -backend-config=\"bucket=${params.STATE_BUCKET}\" -backend-config=\"region=${params.STATE_BUCKET_REGION}\""
+                    sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
                 }
             }
         }
