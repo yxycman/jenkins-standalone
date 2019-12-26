@@ -17,6 +17,7 @@ Please open `module_caller.tf` file in a root folder with a text editor and upda
 - `admin_password`. If you want to have other, but default, the password for accessing Jenkins via WEB  
 See the full list of supported variables in the bottom of this document  
 
+![caller](images/00-caller.png)
 
 run from the root folder of this repo: 
 - terraform init
