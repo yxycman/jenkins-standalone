@@ -48,18 +48,17 @@ write_files:
 
       def instance = Jenkins.getInstance()
 
+      userConfig     = [new UserRemoteConfig("${stack_url}", null, null, null)]
+      branchConfig   = [new BranchSpec("*/master")]
+      scm            = new GitSCM(userConfig, branchConfig, false, [], null, null, null)
+      bucketParam    = new StringParameterDefinition("STATE_BUCKET", "${state_bucket}")
+      regionParam    = new StringParameterDefinition("STATE_BUCKET_REGION", "${region}")
+
       if (!instance.getJob('terraform-deploy')) {
         job            = instance.createProject(WorkflowJob, 'terraform-deploy')
-
-        userConfig     = [new UserRemoteConfig("${stack_url}", null, null, null)]
-        branchConfig   = [new BranchSpec("*/master")]
-        scm            = new GitSCM(userConfig, branchConfig, false, [], null, null, null)
         flowDefinition = new CpsScmFlowDefinition(scm, 'managed_stack/Jenkinsfile')
         flowDefinition.setLightweight(true)
         job.setDefinition(flowDefinition)
-
-        bucketParam       = new StringParameterDefinition("STATE_BUCKET", "${state_bucket}")
-        regionParam       = new StringParameterDefinition("STATE_BUCKET_REGION", "${region}")
         job.addProperty(new ParametersDefinitionProperty([bucketParam, regionParam]))
         job.save()
       }

@@ -25,7 +25,7 @@ pipeline {
                 dir('managed_stack/test-vpc') {
                     script {
                         def exitCode = sh (
-                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode",
+                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode -var \"aws_region=${params.STATE_BUCKET_REGION}\"",
                                 returnStatus: true
                             )
                         switch(exitCode) {
@@ -54,7 +54,7 @@ pipeline {
                             return
                         }
                         input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
-                        sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+                        sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan -var \"aws_region=${params.STATE_BUCKET_REGION}\""
                     }                    
                 }
             }

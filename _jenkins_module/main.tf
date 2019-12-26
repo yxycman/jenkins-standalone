@@ -155,8 +155,9 @@ resource "random_id" "jenkins_uniq" {
 # We need to have dozens of modules and Jenkins mirrors are not very stable, 
 # thus we provide .zip file with needed plugin this way, to minimize `connect timed out` errors during bootstrap
 resource "aws_s3_bucket" "jenkins" {
-  bucket = "${var.aws_region}-sserve-jenkins-demo-${random_id.jenkins_uniq.dec}"
-  acl    = "private"
+  bucket        = "${var.aws_region}-sserve-jenkins-demo-${random_id.jenkins_uniq.dec}"
+  acl           = "private"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_object" "jenkins_plugins" {
