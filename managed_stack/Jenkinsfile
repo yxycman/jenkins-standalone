@@ -31,20 +31,16 @@ pipeline {
                         switch(exitCode) {
                                 case 0:
                                     echo 'Plan OK with no changes'
-                                    currentBuild.result = 'SUCCESS'
-                                    return
-                                case 2:
+                                    currentBuild.result = 'NOT_BUILT'
+                                    break
+                                case 1:
                                     echo 'Plan Failed'
                                     currentBuild.result = 'FAILURE'
-                                    return
+                                    break
                                 case 2:
                                     echo 'Plan OK with changes: proceeding'
                                     break
                         }
-                        //if (currentBuild.result in ['SUCCESS', 'FAILURE']) {
-                        //    return
-                        //}
-                        def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
                     }
                 }
             }
@@ -53,7 +49,13 @@ pipeline {
         stage ('Terrafrom apply') {
             steps {
                 dir('managed_stack/test-vpc') {
-                    sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+                    script {
+                        if (currentBuild.result in ['NOT_BUILT', 'FAILURE']) {
+                            return
+                        }
+                        input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+                        sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
+                    }                    
                 }
             }
         }
