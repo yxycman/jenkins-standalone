@@ -5,6 +5,66 @@ provider "aws" {
 provider "random" {}
 
 #------------------------------------
+# IAM configuration
+#------------------------------------
+
+resource "aws_iam_role" "jenkins" {
+  name = "jenkins-workshop-role"
+
+  assume_role_policy = <<EOF
+{
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": "sts:AssumeRole",
+          "Principal": {
+            "Service": "ec2.amazonaws.com"
+          },
+          "Effect": "Allow",
+          "Sid": ""
+        }
+      ]
+    }
+EOF
+}
+
+resource "aws_iam_policy" "jenkins" {
+  name        = "jenkins-workshop-policy"
+  description = "Full access policy for Jenkins workshop"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "jenkins" {
+  role       = aws_iam_role.jenkins.name
+  policy_arn = aws_iam_policy.jenkins.arn
+}
+
+resource "aws_iam_instance_profile" "jenkins" {
+  name = "jenkins_workshop_profile"
+  role = aws_iam_role.jenkins.name
+}
+
+/* resource "aws_iam_policy_attachment" "jenkins" {
+  name       = "jenkins-attachment"
+  roles      = [aws_iam_role.jenkins.name]
+  policy_arn = aws_iam_policy.jenkins.arn
+} */
+
+#------------------------------------
 # Network configuration
 #------------------------------------
 
@@ -124,9 +184,10 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids = [aws_security_group.jenkins.id]
   key_name               = aws_key_pair.jenkins.key_name
   user_data              = data.template_cloudinit_config.jenkins.rendered
+  iam_instance_profile   = aws_iam_instance_profile.jenkins.name
 
   tags = {
-    Name = "oliashuk jenkins instance"
+    Name = "Jenkins workshop instance"
   }
 
   lifecycle {

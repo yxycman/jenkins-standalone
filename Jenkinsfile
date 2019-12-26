@@ -1,6 +1,6 @@
-node {
-    checkout scm
-}
+//node {
+//    checkout scm
+//}
 
 pipeline {
     agent any
@@ -11,20 +11,22 @@ pipeline {
         ansiColor('xterm')
     }
 
-    stages {
+    parameters {
+        string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet the world?')
+    }
+
+    stages {        
         stage ('Terrafrom init') {
             steps {
-                dir('terraform-provider-aws/examples/two-tier') {
+                dir('examples/networking') {
                     sh "terraform init -input=false"
                 }
             }
-
         }
 
         stage ('Terrafrom plan') {
             steps {
-                dir('terraform-provider-aws/examples/two-tier') {
-                    //sh "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode"
+                dir('examples/networking') {
                     script {
                         def exitCode = sh (
                                 script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode",
@@ -54,7 +56,7 @@ pipeline {
 
         stage ('Terrafrom apply') {
             steps {
-                dir('terraform-provider-aws/examples/two-tier') {
+                dir('examples/networking') {
                     sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan"
                 }
             }

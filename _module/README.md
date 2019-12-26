@@ -1,6 +1,8 @@
 terraform init; terraform apply
 public_key
 
+admin /sfiserve
+
 oliashuk
 
 
