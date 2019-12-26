@@ -32,18 +32,18 @@ pipeline {
                                 case 0:
                                     echo 'Plan OK with no changes'
                                     currentBuild.result = 'SUCCESS'
-                                    break
-                                case 1:
+                                    return
+                                case 2:
                                     echo 'Plan Failed'
                                     currentBuild.result = 'FAILURE'
-                                    break
+                                    return
                                 case 2:
                                     echo 'Plan OK with changes: proceeding'
                                     break
                         }
-                        if (currentBuild.result in ['SUCCESS', '']) {
-                            return
-                        }
+                        //if (currentBuild.result in ['SUCCESS', 'FAILURE']) {
+                        //    return
+                        //}
                         def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
                     }
                 }
