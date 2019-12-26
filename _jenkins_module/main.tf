@@ -162,8 +162,9 @@ resource "aws_s3_bucket" "jenkins" {
 resource "aws_s3_bucket_object" "jenkins_plugins" {
   key    = "_zipped_plugins.zip"
   bucket = aws_s3_bucket.jenkins.id
-  source = "_module/_zipped_plugins.zip"
+  source = "_jenkins_module/_zipped_plugins.zip"
   acl    = "public-read"
+  etag   = filemd5("_jenkins_module/_zipped_plugins.zip")
 }
 
 resource "aws_key_pair" "jenkins" {

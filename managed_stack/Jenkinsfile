@@ -1,0 +1,61 @@
+node {
+    checkout scm
+}
+
+pipeline {
+    agent any
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        timeout(time: 5, unit: 'MINUTES')
+        ansiColor('xterm')
+    }
+
+    stages {        
+        stage ('Terrafrom init') {
+            steps {
+                dir('managed_stack/test-vpc') {
+                    sh "terraform init -input=false -backend-config=\"bucket=${params.STATE_BUCKET}\" -backend-config=\"region=${params.STATE_BUCKET_REGION}\""
+                }
+            }
+        }
+
+        stage ('Terrafrom plan') {
+            steps {
+                dir('managed_stack/test-vpc') {
+                    script {
+                        def exitCode = sh (
+                                script: "terraform plan -out=${BUILD_NUMBER}.tfplan -input=false -detailed-exitcode -backend-config=\"bucket=${params.STATE_BUCKET}\" -backend-config=\"region=${params.STATE_BUCKET_REGION}\"",
+                                returnStatus: true
+                            )
+                        switch(exitCode) {
+                                case 0:
+                                    echo 'Plan OK with no changes'
+                                    currentBuild.result = 'SUCCESS'
+                                    break
+                                case 1:
+                                    echo 'Plan Failed'
+                                    currentBuild.result = 'FAILURE'
+                                    break
+                                case 2:
+                                    echo 'Plan OK with changes: proceeding'
+                                    break
+                        }
+                        if (currentBuild.result == 'SUCCESS') {
+                            return
+                        }
+                        def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+                    }
+                }
+            }
+        }
+
+        stage ('Terrafrom apply') {
+            steps {
+                dir('managed_stack/test-vpc') {
+                    sh "terraform apply -input=false ${BUILD_NUMBER}.tfplan -backend-config=\"bucket=${params.STATE_BUCKET}\" -backend-config=\"region=${params.STATE_BUCKET_REGION}\""
+                }
+            }
+        }
+    }
+}

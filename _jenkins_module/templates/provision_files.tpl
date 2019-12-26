@@ -54,7 +54,7 @@ write_files:
         userConfig     = [new UserRemoteConfig("${stack_url}", null, null, null)]
         branchConfig   = [new BranchSpec("*/master")]
         scm            = new GitSCM(userConfig, branchConfig, false, [], null, null, null)
-        flowDefinition = new CpsScmFlowDefinition(scm, 'Jenkinsfile')
+        flowDefinition = new CpsScmFlowDefinition(scm, 'managed_stack/Jenkinsfile')
         flowDefinition.setLightweight(true)
         job.setDefinition(flowDefinition)
 
