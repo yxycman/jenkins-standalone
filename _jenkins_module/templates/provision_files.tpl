@@ -35,7 +35,7 @@ write_files:
       //  instance.updateCenter.getPlugin(it).deploy().get(3, TimeUnit.MINUTES)
       //}
 
-  - path: /var/lib/jenkins/init.groovy.d/22-job.groovy
+  - path: /var/lib/jenkins/init.groovy.d/22-jobs.groovy
     permissions: "644"
     content: |
       import jenkins.model.*
@@ -54,13 +54,22 @@ write_files:
       bucketParam    = new StringParameterDefinition("STATE_BUCKET", "${state_bucket}")
       regionParam    = new StringParameterDefinition("STATE_BUCKET_REGION", "${region}")
 
-      if (!instance.getJob('terraform-deploy')) {
-        job            = instance.createProject(WorkflowJob, 'terraform-deploy')
-        flowDefinition = new CpsScmFlowDefinition(scm, 'managed_stack/Jenkinsfile')
-        flowDefinition.setLightweight(true)
-        job.setDefinition(flowDefinition)
-        job.addProperty(new ParametersDefinitionProperty([bucketParam, regionParam]))
-        job.save()
+      if (!instance.getJob('terraform-deploy-vpc')) {
+        job1            = instance.createProject(WorkflowJob, 'terraform-deploy-vpc')
+        flowDefinition1 = new CpsScmFlowDefinition(scm, 'managed_stack/Jenkinsfile')
+        flowDefinition1.setLightweight(true)
+        job1.setDefinition(flowDefinition1)
+        job1.addProperty(new ParametersDefinitionProperty([bucketParam, regionParam]))
+        job1.save()
+      }
+
+      if (!instance.getJob('terraform-deploy-something-else')) {
+        job2            = instance.createProject(WorkflowJob, 'terraform-deploy-something-else')
+        flowDefinition2 = new CpsScmFlowDefinition(scm, 'managed_stack_2/Jenkinsfile')
+        flowDefinition2.setLightweight(true)
+        job2.setDefinition(flowDefinition2)
+        job2.addProperty(new ParametersDefinitionProperty([bucketParam, regionParam]))
+        job2.save()
       }
       
       if (!instance.installState.isSetupComplete()) {
