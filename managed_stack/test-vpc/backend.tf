@@ -1,5 +1,5 @@
 terraform {
   backend "s3" {
-    key     = "root"
+    key     = "managed_stack/test-vpc"
   }
 }
