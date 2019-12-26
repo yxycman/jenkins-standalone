@@ -50,16 +50,17 @@ write_files:
 
       if (!instance.getJob('terraform-deploy')) {
         job            = instance.createProject(WorkflowJob, 'terraform-deploy')
+
         userConfig     = [new UserRemoteConfig("${stack_url}", null, null, null)]
         branchConfig   = [new BranchSpec("*/master")]
         scm            = new GitSCM(userConfig, branchConfig, false, [], null, null, null)
         flowDefinition = new CpsScmFlowDefinition(scm, 'Jenkinsfile')
         flowDefinition.setLightweight(true)
         job.setDefinition(flowDefinition)
-        bucketParam       = new StringParameterDefinition("tf-state-bucket-name", "${state_bucket}")
-        job.addProperty(new ParametersDefinitionProperty(bucketParam))
-        regionParam       = new StringParameterDefinition("tf-state-bucket-region", "${state_bucket}")
-        job.addProperty(new ParametersDefinitionProperty(regionParam));
+
+        bucketParam       = new StringParameterDefinition("STATE_BUCKET", "${state_bucket}")
+        regionParam       = new StringParameterDefinition("STATE_BUCKET_REGION", "${region}")
+        job.addProperty(new ParametersDefinitionProperty([bucketParam, regionParam]))
         job.save()
       }
       
