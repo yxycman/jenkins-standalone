@@ -9,6 +9,8 @@ You need to have:
 
 Please open `module_caller.tf` file in a root folder with a text editor and update the following parameters:
 
+![caller](images/00-caller.png)
+
 > mandatory:
 - `public_key`. Public key to your Private SSH key. It will be added to `ec2-user`'s authorozed_keys, so you can log in to an instance.  
 
@@ -16,8 +18,6 @@ Please open `module_caller.tf` file in a root folder with a text editor and upda
 - `aws_region`. The region, in which we set up our infra  
 - `admin_password`. If you want to have other, but default, the password for accessing Jenkins via WEB  
 See the full list of supported variables in the bottom of this document  
-
-![caller](images/00-caller.png)
 
 run from the root folder of this repo: 
 - terraform init
