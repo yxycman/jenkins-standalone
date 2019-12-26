@@ -42,6 +42,7 @@ write_files:
       import jenkins.install.*
       import hudson.tasks.Shell
       import hudson.plugins.git.*
+      import hudson.model.*
       import org.jenkinsci.plugins.workflow.job.WorkflowJob
       import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
 
@@ -55,6 +56,10 @@ write_files:
         flowDefinition = new CpsScmFlowDefinition(scm, 'Jenkinsfile')
         flowDefinition.setLightweight(true)
         job.setDefinition(flowDefinition)
+        bucketParam       = new StringParameterDefinition("tf-state-bucket-name", "${state_bucket}")
+        job.addProperty(new ParametersDefinitionProperty(bucketParam))
+        regionParam       = new StringParameterDefinition("tf-state-bucket-region", "${state_bucket}")
+        job.addProperty(new ParametersDefinitionProperty(regionParam));
         job.save()
       }
       

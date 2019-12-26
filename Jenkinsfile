@@ -1,6 +1,6 @@
-//node {
-//    checkout scm
-//}
+node {
+    checkout scm
+}
 
 pipeline {
     agent any
@@ -11,15 +11,11 @@ pipeline {
         ansiColor('xterm')
     }
 
-    parameters {
-        string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet the world?')
-    }
-
     stages {        
         stage ('Terrafrom init') {
             steps {
                 dir('examples/networking') {
-                    sh "terraform init -input=false"
+                    sh "terraform init -input=false -backend-config=\"bucket=${params.tf-state-bucket-name}\" -backend-config=\"region=${params.tf-state-bucket-region}\""
                 }
             }
         }

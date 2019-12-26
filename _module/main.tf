@@ -58,12 +58,6 @@ resource "aws_iam_instance_profile" "jenkins" {
   role = aws_iam_role.jenkins.name
 }
 
-/* resource "aws_iam_policy_attachment" "jenkins" {
-  name       = "jenkins-attachment"
-  roles      = [aws_iam_role.jenkins.name]
-  policy_arn = aws_iam_policy.jenkins.arn
-} */
-
 #------------------------------------
 # Network configuration
 #------------------------------------
@@ -210,6 +204,7 @@ data "template_file" "provision_files" {
     region         = var.aws_region
     random         = random_id.jenkins_uniq.dec
     stack_url      = var.stack_url
+    state_bucket   = "${var.aws_region}-sserve-jenkins-demo-${random_id.jenkins_uniq.dec}"
   }
 }
 
